@@ -15,7 +15,7 @@ public class BoidSettingsEditor : Editor
         if (GUILayout.Button("Reset Values"))
         {
             settings.ResetValues();
-            EditorUtility.SetDirty(settings); // Marks object as modified
+            EditorUtility.SetDirty(settings);
         }
     }
 }

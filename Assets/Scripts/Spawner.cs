@@ -1,112 +1,144 @@
 using System.Collections;
 using System.Collections.Generic;
+using TreeEditor;
 using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 
 public class Spawner : MonoBehaviour
 {
-    public GameObject birdPrefab;
+    public GameObject boidPrefab;
     public BoidSettings settings;
+    public GameObject target;
+    public bool DrawGizmos = true;
 
-    public List<GameObject> birds = new(); 
-    public GameObject meshCreator;
-
-    public GameObject target; 
-
-    
+    [HideInInspector] public List<GameObject> boids = new();
+    [HideInInspector] public BoundaryController boundaryController; 
 
     float widthMin = 0f;
     float widthMax = 0f;
     float heightMin = 0f;
     float heightMax = 0f;
-    int prevBirdAmount;
+    int prevBoidAmount;
+    Vector3 lastPos; 
 
     
 
     // Start is called before the first frame update
     void Start()
-    {
+    {  
         widthMax = settings.width;
         heightMax = settings.height;
-        prevBirdAmount = settings.birdAmount;
-
-        SpawnBirds();
+        prevBoidAmount = settings.boidAmount;
+        boundaryController = new BoundaryController(settings);
+        boundaryController.spawnerPosition = transform.position;
+        lastPos = transform.position;
+        SpawnBoids();
     }
 
     private void Update()
     {
-        if (settings.birdAmount > prevBirdAmount)
+        if (lastPos != transform.position)
         {
-            AddBirds();
-            prevBirdAmount = settings.birdAmount;
+            updateMiddlePositions();
+            lastPos = transform.position;   
+            boundaryController.spawnerPosition = transform.position;
         }
-        else if (settings.birdAmount < prevBirdAmount)
+        
+        if (settings.boidAmount > prevBoidAmount)
         {
-            RemoveBirds();
-            prevBirdAmount = settings.birdAmount;
+            AddBoids();
+            prevBoidAmount = settings.boidAmount;
+        }
+        else if (settings.boidAmount < prevBoidAmount)
+        {
+            RemoveBoids();
+            prevBoidAmount = settings.boidAmount;
         }
     }
 
-    private void RemoveBirds()
+    void updateMiddlePositions()
+    {
+        foreach (var boid in boids)
+        {
+            boid.GetComponent<Boid>().middle = transform.position + new Vector3(settings.width, settings.height, settings.width) / 2f;
+        }
+    }
+
+    private void RemoveBoids()
     {
         List<GameObject> birdsToBeRemoved = new(); 
-        for (int i = settings.birdAmount;  i < birds.Count; i++)
+        for (int i = settings.boidAmount;  i < boids.Count; i++)
         {
-            birdsToBeRemoved.Add(birds[i]);
+            birdsToBeRemoved.Add(boids[i]);
         }
 
         foreach (GameObject bird in birdsToBeRemoved)
         {
-            birds.Remove(bird);
+            boids.Remove(bird);
             Destroy(bird);
         }
     }
 
-    private void AddBirds()
+    private void AddBoids()
     {
-        List<GameObject> birdsToAdded = new();
-        for (int i = 0; i < settings.birdAmount - prevBirdAmount; i++)
+        for (int i = 0; i < settings.boidAmount - prevBoidAmount; i++)
         {
-            SpawnBird();
+            SpawnBoid();
         }
 
-    }
-
-    int getIndex(Vector3Int bc)
-    {
-        return bc.x * settings.widthRows + bc.y * settings.heightRows + bc.z * settings.widthRows;
     }
     
-
-    void SpawnBirds()
+    void SpawnBoids()
     {
-        for (int i = 0; i < settings.birdAmount; i++)
+        for (int i = 0; i < settings.boidAmount; i++)
         {
-            SpawnBird(); 
+            SpawnBoid(); 
         }
     }
 
-    void SpawnBird()
+    void SpawnBoid()
     {
-        GameObject bird = Instantiate(birdPrefab);
-        bird.transform.SetParent(transform, false);
+        GameObject boid = Instantiate(boidPrefab);
+        boid.transform.SetParent(transform, false);
 
         float x = Random.Range(widthMin + 10f, widthMax - 10f);
         float z = Random.Range(widthMin + 10f, widthMax - 10f);
         float y = Random.Range(heightMin + 10f, heightMax - 10f);
 
-        bird.transform.position = new Vector3(x, y, z);
-        bird.transform.rotation = Random.rotation;
+        boid.transform.position = new Vector3(x, y, z) + transform.position;
+        boid.transform.rotation = Random.rotation;
+        boid.GetComponent<Boid>().middle = transform.position + new Vector3(settings.width, settings.height, settings.width) / 2f;
+        boid.GetComponent<Boid>().speed = Mathf.Max(0.5f, settings.boidSpeed + 2f * Random.value - 1f);
 
-        birds.Add(bird);
+        boids.Add(boid);
     }
 
-    
 
-    
-   
+    private void OnDrawGizmos()
+    {
+        if (!DrawGizmos)
+            return;
+
+        Vector3 pos = transform.position; 
+        Vector3 forward = Vector3.forward * settings.width;
+        Vector3 right = Vector3.right * settings.width;
+        Vector3 up = Vector3.up * settings.height;
+
+        Gizmos.DrawLine(pos, pos + forward);
+        Gizmos.DrawLine(pos, pos + right);
+        Gizmos.DrawLine(pos + forward, pos + forward + right);
+        Gizmos.DrawLine(pos + right, pos + forward + right);
+
+        Gizmos.DrawLine(pos + up, pos + forward + up);
+        Gizmos.DrawLine(pos + up, pos + right + up);
+        Gizmos.DrawLine(pos + forward + up, pos + forward + right + up);
+        Gizmos.DrawLine(pos + right + up, pos + forward + right + up);
 
 
-
+        Gizmos.DrawLine(pos, pos + up);
+        Gizmos.DrawLine(pos + forward, pos + forward + up);
+        Gizmos.DrawLine(pos + right, pos + right + up);
+        Gizmos.DrawLine(pos + forward + right, pos + forward + right + up);
+    }
 }

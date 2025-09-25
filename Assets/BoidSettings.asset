@@ -12,18 +12,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: baba2f2ac9c2c994aa3efbb31e4ffe68, type: 3}
   m_Name: BoidSettings
   m_EditorClassIdentifier: 
-  alignmentDistance: 4.11
-  alignmentSpeed: 3.64
-  coherenceSpeed: 0.06
-  seperationSpeed: 6.21
-  radiusSphere: 0.1
-  radiusSpread: 2.57
-  sampleAmount: 60
-  filterAngle: 210.1
-  birdAmount: 210
-  birdSpeed: 5.21
-  toTargetSpeed: -0.05
-  width: 50
+  alignmentDistance: 4.35
+  alignmentSpeed: 3.25
+  coherenceSpeed: 0
+  seperationSpeed: 1.56
+  seperationAngle: -0.5
+  seperationDistance: 2
+  boidAmount: 200
+  boidSpeed: 6.17
+  toTargetSpeed: 0
+  width: 300
   height: 50
-  widthRows: 8
-  heightRows: 5
+  steerAway: 3.52
+  widthRows: 10
+  heightRows: 3
+  maxBoidCalculations: 21

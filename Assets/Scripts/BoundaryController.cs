@@ -2,27 +2,42 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BoundaryController : MonoBehaviour
+public class BoundaryController
 {
-    public List<Boundary> boundaries = new();
-    public BoidSettings settings;
+    public List<Boundary> boundaries; 
+    BoidSettings settings;
 
-    // Start is called before the first frame update
-    void Start()
+    public Vector3 spawnerPosition; 
+    
+    public BoundaryController(BoidSettings settings)
     {
+        boundaries = new();
+        this.settings = settings;
         createBoundaries();
     }
 
-    public void boundaryCheck(ref int boundaryIndex, Vector3 position, GameObject bird)
+    public void boundaryCheck(ref int boundaryIndex, Vector3 position, GameObject boid)
     {
+        position -= spawnerPosition;
         var index = getCurrentBoundaryIndex(position);
         if (index == boundaryIndex)
             return;
 
+        if (index >= boundaries.Count)
+        {
+            Debug.Log("Out1"); 
+            index = boundaries.Count - 1;
+        }
+        else if (index < 0)
+        {
+            Debug.Log("Out2");
+            index = 0;
+        }
+            
 
-        boundaries[index].AddBird(bird);
+        boundaries[index].AddBoid(boid);
         if (boundaryIndex != -1)
-            boundaries[boundaryIndex].RemoveBird(bird); 
+            boundaries[boundaryIndex].RemoveBoid(boid); 
         boundaryIndex = index;
     }
 
@@ -33,15 +48,15 @@ public class BoundaryController : MonoBehaviour
 
         foreach (Boundary neighbor in neighboringBoundries)
         {
-            birds.AddRange(neighbor.birdsInBoundary);
+            birds.AddRange(neighbor.boidsInBoundary);
         }
 
-        birds.AddRange(boundaries[index].birdsInBoundary);
+        birds.AddRange(boundaries[index].boidsInBoundary);
 
         return birds; 
     }
 
-    public int getCurrentBoundaryIndex(Vector3 position)
+    int getCurrentBoundaryIndex(Vector3 position)
     {
         Vector3Int boundaryCoord = getBoundaryCoord(position);
         int index = getIndexFromBoundaryCoord(boundaryCoord);
@@ -62,9 +77,9 @@ public class BoundaryController : MonoBehaviour
         return new Vector3Int(Mathf.FloorToInt((position.x) / xSize), (int)Mathf.FloorToInt(position.y / ySize), (int)Mathf.FloorToInt((position.z) / zSize));
     }
 
-    public void removeBirdFromBoundary(int index, GameObject bird)
+    public void removeBoidFromBoundary(int index, GameObject boid)
     {
-        boundaries[index].RemoveBird(bird); 
+        boundaries[index].RemoveBoid(boid); 
     }
 
     void createBoundaries()
@@ -73,8 +88,6 @@ public class BoundaryController : MonoBehaviour
         float xSize = settings.width / settings.widthRows;
         float ySize = settings.height / settings.heightRows;
         float zSize = settings.width / settings.widthRows;
-
-
 
         for (int i = 0; i < settings.heightRows; i++)
         {
@@ -120,28 +133,5 @@ public class BoundaryController : MonoBehaviour
             }
         }
         return neighbors;
-    }
-
-    private void OnDrawGizmos()
-    {
-        if (boundaries.Count == 0) return;
-
-        foreach (Boundary boundary in boundaries)
-        {
-            Gizmos.color = Color.white;
-            if (boundary.birdsInBoundary.Count != 0)
-            {
-                Gizmos.color = Color.red;
-            }
-            if (boundary.lightUp)
-            {
-                Gizmos.color = Color.green;
-            }
-
-            Gizmos.DrawLine(boundary.position, boundary.position + Vector3.forward * boundary.sizeWidth);
-            Gizmos.DrawLine(boundary.position, boundary.position + Vector3.right * boundary.sizeWidth);
-            Gizmos.DrawLine(boundary.position, boundary.position + Vector3.up * boundary.sizeHeight);
-        }
-
     }
 }

@@ -6,29 +6,30 @@ using UnityEngine;
 public class BoidSettings : ScriptableObject
 {
     [Header("Boid Behaviour")]
-    public float alignmentDistance = 5f;
-    public float alignmentSpeed = 1.0f;
-    public float coherenceSpeed = 0.2f;
-    public float seperationSpeed = 5f;
+    [Range(0, 10)] public float alignmentDistance = 5f;
+    [Range(0, 10)] public float alignmentSpeed = 1.0f;
+    [Range(0, 10)] public float coherenceSpeed = 0.2f;
+    [Range(0, 10)] public float seperationSpeed = 5f;
+    [Range(-1, 1)] public float seperationAngle = -0.5f;
+    [Range(0, 10)] public float seperationDistance = 2.0f;
+    [Range(0, 10)] public float randomSteering = 0.5f;
 
-    [Header("Sensor Settings")]
-    public float radiusSphere = 3f;
-    public float radiusSpread = 20f;
-    public int sampleAmount = 20;
-    public float filterAngle = 90.0f;
-
-    [Header("Bird Settings")]
-    public int birdAmount = 50;
-    public float birdSpeed = 0.5f;
+    [Header("Boid Settings")]
+    [Min(0)] public int boidAmount = 50;
+    [Min(0)]public float boidSpeed = 0.5f;
     public float toTargetSpeed = 4.0f;
 
     [Header("Environment Settings")]
-    public float width = 50;
-    public float height = 50;
+    [Min(0)] public float width = 50;
+    [Min(0)] public float height = 50;
+    [Range(0, 10)] public float steerAway = 1.0f; 
 
     [Header("Boundary Settings")]
-    public int widthRows = 8;
-    public int heightRows = 5;
+    [Min(0)] public int widthRows = 8;
+    [Min(0)] public int heightRows = 5;
+
+    [Header("Performance Settings")]
+    public int maxBoidCalculations = 50; 
 
     public void ResetValues()
     {

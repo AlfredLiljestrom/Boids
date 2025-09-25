@@ -8,7 +8,7 @@ public class Boundary
     public Vector3Int boundaryCord;
     public float sizeWidth;
     public float sizeHeight;
-    public List<GameObject> birdsInBoundary = new();
+    public List<GameObject> boidsInBoundary = new();
     public bool lightUp = false; 
 
     public Boundary(Vector3 position, float sizeWidth, float sizeHeight, Vector3Int boundaryCord)
@@ -19,13 +19,13 @@ public class Boundary
         this.boundaryCord = boundaryCord;
     }
 
-    public void AddBird(GameObject bird)
+    public void AddBoid(GameObject boid)
     {
-        birdsInBoundary.Add(bird);
+        boidsInBoundary.Add(boid);
     }
 
-    public void RemoveBird(GameObject bird)
+    public void RemoveBoid(GameObject boid)
     {
-        birdsInBoundary.Remove(bird);
+        boidsInBoundary.Remove(boid);
     }
 }
